@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chain Analysis - DBT Skills Group</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-teal: #5EEAD4;
+            --deep-teal: #14B8A6;
+            --sage-green: #87A878;
+            --soft-sage: #A8C09A;
+            --soft-purple: #C084FC;
+            --warm-rose: #FDA4AF;
+            --calm-blue: #93C5FD;
+            --midnight: #1E293B;
+            --slate: #475569;
+            --pearl: #F8FAFC;
+            --cream: #FFF8E7;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            min-height: 100vh;
+            color: var(--midnight);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Floating background elements */
+        .bg-circle {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.3;
+            animation: float 20s infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        .bg-circle1 {
+            width: 300px;
+            height: 300px;
+            background: var(--primary-teal);
+            top: -100px;
+            right: -100px;
+        }
+
+        .bg-circle2 {
+            width: 400px;
+            height: 400px;
+            background: var(--soft-purple);
+            bottom: -150px;
+            left: -150px;
+            animation-delay: -5s;
+        }
+
+        .bg-circle3 {
+            width: 250px;
+            height: 250px;
+            background: var(--warm-rose);
+            top: 50%;
+            right: 10%;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: slideDown 0.8s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            color: var(--slate);
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+
+        .date-info {
+            color: var(--deep-teal);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
+
+        /* Navigation Pills */
+        .nav-pills {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-pill {
+            padding: 0.75rem 2rem;
+            border-radius: 50px;
+            background: white;
+            border: 2px solid transparent;
+            color: var(--slate);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .nav-pill:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+
+        .nav-pill.active {
+            background: linear-gradient(135deg, #5EEAD4 0%, #93C5FD 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #5EEAD4 0%, #93C5FD 100%);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.12);
+        }
+
+        .card h2 {
+            color: var(--midnight);
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card h3 {
+            color: var(--deep-teal);
+            margin: 1.5rem 0 1rem 0;
+            font-size: 1.3rem;
+        }
+
+        .icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #5EEAD4 0%, #93C5FD 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        /* Meditation Section */
+        .meditation-box {
+            background: linear-gradient(135deg, rgba(135, 168, 120, 0.1) 0%, rgba(147, 197, 253, 0.1) 100%);
+            padding: 2rem;
+            border-radius: 16px;
+            margin: 2rem 0;
+            border-left: 4px solid var(--sage-green);
+        }
+
+        .quote {
+            font-style: italic;
+            color: var(--slate);
+            font-size: 1.1rem;
+            line-height: 1.8;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .quote-author {
+            text-align: right;
+            color: var(--deep-teal);
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        /* Breathing exercise */
+        .breathing-circle {
+            width: 150px;
+            height: 150px;
+            margin: 2rem auto;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-teal) 0%, var(--calm-blue) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(94, 234, 212, 0.3);
+        }
+
+        .breathing-circle:hover {
+            transform: scale(1.05);
+        }
+
+        .breathing-circle.breathing {
+            animation: breathe 8s infinite ease-in-out;
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.3); opacity: 1; }
+        }
+
+        /* Component grid */
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .component-card {
+            background: linear-gradient(135deg, rgba(94, 234, 212, 0.05) 0%, rgba(147, 197, 253, 0.05) 100%);
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 2px solid rgba(94, 234, 212, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .component-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-teal);
+            box-shadow: 0 10px 30px rgba(94, 234, 212, 0.2);
+        }
+
+        .component-card h4 {
+            color: var(--deep-teal);
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .component-card p {
+            color: var(--slate);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .component-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #FDA4AF 0%, #C084FC 100%);
+            border-radius: 50%;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 0.5rem;
+        }
+
+        /* Interactive Chain Builder */
+        .chain-builder {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            margin: 2rem 0;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--midnight);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .input-group textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid rgba(94, 234, 212, 0.3);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .input-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-teal);
+            box-shadow: 0 0 0 3px rgba(94, 234, 212, 0.1);
+        }
+
+        .input-group select {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid rgba(94, 234, 212, 0.3);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .input-group select:focus {
+            outline: none;
+            border-color: var(--primary-teal);
+            box-shadow: 0 0 0 3px rgba(94, 234, 212, 0.1);
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            background: linear-gradient(135deg, #5EEAD4 0%, #93C5FD 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(94, 234, 212, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(94, 234, 212, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--deep-teal);
+            border: 2px solid var(--primary-teal);
+            margin-left: 1rem;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(94, 234, 212, 0.1);
+        }
+
+        /* Results Display */
+        .chain-result {
+            background: linear-gradient(135deg, rgba(135, 168, 120, 0.05) 0%, rgba(147, 197, 253, 0.05) 100%);
+            padding: 2rem;
+            border-radius: 16px;
+            margin-top: 2rem;
+            border: 2px solid var(--sage-green);
+            display: none;
+        }
+
+        .chain-result.show {
+            display: block;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-section {
+            padding: 1.5rem;
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .result-section h4 {
+            color: var(--deep-teal);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .result-section p {
+            color: var(--slate);
+            line-height: 1.6;
+        }
+
+        /* Info boxes */
+        .info-box {
+            background: linear-gradient(135deg, rgba(253, 164, 175, 0.1) 0%, rgba(192, 132, 252, 0.1) 100%);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            border-left: 4px solid var(--warm-rose);
+        }
+
+        .info-box h4 {
+            color: var(--deep-teal);
+            margin-bottom: 0.75rem;
+        }
+
+        .info-box ul {
+            color: var(--slate);
+            line-height: 1.8;
+            margin-left: 1.5rem;
+        }
+
+        /* Expandable sections */
+        .expandable {
+            cursor: pointer;
+            padding: 1rem;
+            background: rgba(94, 234, 212, 0.05);
+            border-radius: 12px;
+            margin: 0.5rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .expandable:hover {
+            background: rgba(94, 234, 212, 0.1);
+        }
+
+        .expandable-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: var(--deep-teal);
+        }
+
+        .expandable-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            color: var(--slate);
+            line-height: 1.6;
+        }
+
+        .expandable.expanded .expandable-content {
+            max-height: 1000px;
+            margin-top: 1rem;
+        }
+
+        .expandable-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .expandable.expanded .expandable-icon {
+            transform: rotate(180deg);
+        }
+
+        /* Pass option */
+        .pass-reminder {
+            background: rgba(147, 197, 253, 0.1);
+            padding: 1rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+            text-align: center;
+            color: var(--slate);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .container { padding: 1rem; }
+            .card { padding: 1.5rem; }
+            .nav-pills { flex-direction: column; align-items: stretch; }
+            .nav-pill { text-align: center; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating Background Elements -->
+    <div class="bg-circle bg-circle1"></div>
+    <div class="bg-circle bg-circle2"></div>
+    <div class="bg-circle bg-circle3"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Chain Analysis</h1>
+            <p class="subtitle">Understanding Our Patterns, Creating New Pathways</p>
+            <p class="date-info">DBT Skills Group • Wednesday, October 29, 2025</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-pills">
+            <button class="nav-pill active" onclick="showPage(0)">Opening</button>
+            <button class="nav-pill" onclick="showPage(1)">Learn</button>
+            <button class="nav-pill" onclick="showPage(2)">Practice</button>
+            <button class="nav-pill" onclick="showPage(3)">Integrate</button>
+        </div>
+
+        <!-- Page 0: Opening Meditation -->
+        <div class="page active" id="page0">
+            <div class="card">
+                <h2>
+                    <div class="icon">🧘</div>
+                    Grounding & Arrival
+                </h2>
+                
+                <div class="meditation-box">
+                    <p style="color: var(--slate); line-height: 1.7; text-align: center;">
+                        Let's begin by arriving fully in this moment together.<br>
+                        Whatever brought you here today, you are welcome exactly as you are.
+                    </p>
+                    
+                    <div class="breathing-circle" id="breathingCircle" onclick="startBreathing()">
+                        Click to Begin
+                    </div>
+                    
+                    <p style="color: var(--slate); line-height: 1.7; text-align: center; margin-top: 1rem;" id="breathingInstruction">
+                        Follow the circle: Breathe in as it grows, breathe out as it shrinks
+                    </p>
+                </div>
+
+                <div class="quote">
+                    "Between stimulus and response there is a space. In that space is our power to choose our response. In our response lies our growth and our freedom."
+                </div>
+                <div class="quote-author">— Viktor Frankl</div>
+
+                <div class="info-box">
+                    <h4>Today's Intention</h4>
+                    <p style="color: var(--slate); line-height: 1.7;">
+                        Chain analysis helps us find that precious space between trigger and action. 
+                        It's not about judgment or shame—it's about understanding ourselves with compassion 
+                        so we can make different choices. Every moment of awareness is a moment of possibility.
+                    </p>
+                </div>
+
+                <div class="pass-reminder">
+                    Remember: You can always choose to pass on any exercise. Your boundaries are honored here.
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 1: Psychoeducation -->
+        <div class="page" id="page1">
+            <div class="card">
+                <h2>
+                    <div class="icon">🔗</div>
+                    What is Chain Analysis?
+                </h2>
+                
+                <p style="color: var(--slate); margin-bottom: 1.5rem; line-height: 1.7;">
+                    Chain analysis is the primary assessment tool in DBT—a detailed, moment-by-moment examination 
+                    of how problem behaviors unfold. Think of it like a detective investigation: we're looking at 
+                    all the links in the chain that led from vulnerability to behavior to consequences.
+                </p>
+
+                <div class="info-box">
+                    <h4>Why Chain Analysis Matters</h4>
+                    <ul>
+                        <li><strong>Identifies Patterns:</strong> Reveals the specific factors that make behaviors more likely</li>
+                        <li><strong>Finds Intervention Points:</strong> Shows where we can interrupt the chain</li>
+                        <li><strong>Tailors Skills:</strong> Helps us know which DBT skills to use when</li>
+                        <li><strong>Reduces Shame:</strong> Externalizes the behavior to see it objectively</li>
+                    </ul>
+                </div>
+
+                <h3>The Seven Components</h3>
+                
+                <div class="component-grid">
+                    <div class="component-card" onclick="expandComponent(this)">
+                        <h4><span class="component-number">1</span>Problem Behavior</h4>
+                        <p>Described in excruciating detail—specific enough that an actor could recreate it. 
+                        What exactly happened? When? For how long?</p>
+                    </div>
+
+                    <div class="component-card" onclick="expandComponent(this)">
+                        <h4><span class="component-number">2</span>Vulnerability Factors</h4>
+                        <p>What lowered your threshold? Physical states (sleep, hunger, illness), emotional states, 
+                        stressors, past events that made you more susceptible.</p>
+                    </div>
+
+                    <div class="component-card" onclick="expandComponent(this)">
+                        <h4><span class="component-number">3</span>Prompting Event</h4>
+                        <p>The specific trigger that started the chain—often seemingly small. 
+                        Can be internal (thought, emotion) or external (event).</p>
+                    </div>
+
+                    <div class="component-card" onclick="expandComponent(this)">
+                        <h4><span class="component-number">4</span>Link-by-Link</h4>
+                        <p>Each link categorized as: Actions, Body sensations, Cognitions, Events, Feelings. 
+                        This is where detail matters most.</p>
+                    </div>
+
+                    <div class="component-card" onclick="expandComponent(this)">
+                        <h4><span class="component-number">5</span>Consequences</h4>
+                        <p>What happened immediately after? What happened long-term? 
+                        Understanding reinforcement is key to changing patterns.</p>
+                    </div>
+
+                    <div class="component-card" onclick="expandComponent(this)">
+                        <h4><span class="component-number">6</span>Solution Analysis</h4>
+                        <p>For each problematic link: What skill could I have used? 
+                        What would that have looked like specifically?</p>
+                    </div>
+
+                    <div class="component-card" onclick="expandComponent(this)">
+                        <h4><span class="component-number">7</span>Prevention Plan</h4>
+                        <p>How can I reduce vulnerability factors? What repairs are needed? 
+                        How will I catch it earlier next time?</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>
+                    <div class="icon">💡</div>
+                    Key Insights
+                </h2>
+
+                <div class="expandable" onclick="toggleExpand(this)">
+                    <div class="expandable-header">
+                        <span>The "I Don't Know" Phenomenon</span>
+                        <span class="expandable-icon">▼</span>
+                    </div>
+                    <div class="expandable-content">
+                        <p>Often we genuinely can't remember all the links—that's normal. The practice is staying 
+                        curious with ourselves, gently asking "what might have been happening?" This itself is 
+                        a mindfulness practice.</p>
+                    </div>
+                </div>
+
+                <div class="expandable" onclick="toggleExpand(this)">
+                    <div class="expandable-header">
+                        <span>Both/And Thinking</span>
+                        <span class="expandable-icon">▼</span>
+                    </div>
+                    <div class="expandable-content">
+                        <p>The behavior made sense in that moment AND you want to make a different choice next time. 
+                        You did the best you could with what you knew AND you're learning new skills. This is dialectical thinking.</p>
+                    </div>
+                </div>
+
+                <div class="expandable" onclick="toggleExpand(this)">
+                    <div class="expandable-header">
+                        <span>Finding the Space</span>
+                        <span class="expandable-icon">▼</span>
+                    </div>
+                    <div class="expandable-content">
+                        <p>Chain analysis reveals that behaviors aren't inevitable—there are multiple points where 
+                        intervention is possible. Each link is a potential place to interrupt the pattern. The more 
+                        we understand our chains, the more choice we have.</p>
+                    </div>
+                </div>
+
+                <div class="expandable" onclick="toggleExpand(this)">
+                    <div class="expandable-header">
+                        <span>Compassion is Required</span>
+                        <span class="expandable-icon">▼</span>
+                    </div>
+                    <div class="expandable-content">
+                        <p>Without self-compassion, chain analysis becomes self-punishment. The goal isn't to shame 
+                        ourselves about our patterns—it's to understand them with kindness so we can respond differently. 
+                        You are doing this work because you care about yourself and your growth.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 2: Practice -->
+        <div class="page" id="page2">
+            <div class="card">
+                <h2>
+                    <div class="icon">✍️</div>
+                    Build Your Chain
+                </h2>
+                
+                <p style="color: var(--slate); margin-bottom: 2rem; line-height: 1.7;">
+                    Choose a recent behavior you'd like to understand better—not necessarily your "biggest" problem, 
+                    perhaps something manageable to practice with. Remember: you can stop at any time.
+                </p>
+
+                <div class="chain-builder">
+                    <div class="input-group">
+                        <label>1. Problem Behavior (Be Specific)</label>
+                        <textarea id="problemBehavior" placeholder="Example: I scrolled social media for 3 hours instead of working on my project. Specifically, I opened Instagram at 2pm, started with one post, and didn't close the app until 5pm..."></textarea>
+                    </div>
+
+                    <div class="input-group">
+                        <label>2. Vulnerability Factors</label>
+                        <textarea id="vulnerability" placeholder="What made me more susceptible? Sleep quality? Emotional state? Recent stressors? Physical condition?"></textarea>
+                    </div>
+
+                    <div class="input-group">
+                        <label>3. Prompting Event</label>
+                        <textarea id="promptingEvent" placeholder="What was the immediate trigger? A thought? A feeling? Something someone said? An event?"></textarea>
+                    </div>
+
+                    <div class="input-group">
+                        <label>4. The Chain (Link by Link)</label>
+                        <textarea id="chainLinks" placeholder="Walk through moment by moment:
+- Action: What did I do?
+- Body: What sensations did I notice?
+- Cognition: What thoughts arose?
+- Event: What happened externally?
+- Feeling: What emotions came up?
+
+Try to capture at least 5-7 links..."></textarea>
+                    </div>
+
+                    <div class="input-group">
+                        <label>5. Consequences</label>
+                        <textarea id="consequences" placeholder="Immediate consequences: How did I feel right after? What happened?
+Long-term consequences: How did this affect my day? My goals? My relationships?"></textarea>
+                    </div>
+
+                    <div class="input-group">
+                        <label>6. Solution Analysis</label>
+                        <textarea id="solutions" placeholder="Looking at the chain, where could I have intervened? What skills could I have used?
+- At the vulnerability stage?
+- At the prompting event?
+- At specific links in the chain?"></textarea>
+                    </div>
+
+                    <div class="input-group">
+                        <label>7. Prevention Plan</label>
+                        <textarea id="prevention" placeholder="How can I reduce vulnerability factors going forward?
+What will I do differently next time I notice early warning signs?
+Any repairs needed from consequences?"></textarea>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 2rem;">
+                        <button class="btn" onclick="generateChainAnalysis()">
+                            Complete Chain Analysis
+                        </button>
+                        <button class="btn btn-secondary" onclick="clearChain()">
+                            Start Over
+                        </button>
+                    </div>
+
+                    <div id="chainResult" class="chain-result">
+                        <!-- Results will appear here -->
+                    </div>
+                </div>
+
+                <div class="pass-reminder">
+                    If this feels too vulnerable right now, that's completely okay. You can observe others' process or do this privately later.
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 3: Integration -->
+        <div class="page" id="page3">
+            <div class="card">
+                <h2>
+                    <div class="icon">🌟</div>
+                    Integration & Reflection
+                </h2>
+
+                <div class="meditation-box">
+                    <h3 style="color: var(--deep-teal); margin-top: 0;">Group Reflection Prompts</h3>
+                    <p style="color: var(--slate); line-height: 1.8; margin: 1rem 0;">
+                        Take a moment to reflect on what came up for you today. If you'd like to share with the group:
+                    </p>
+                    <ul style="color: var(--slate); line-height: 2; margin-left: 2rem;">
+                        <li>What surprised you about your chain?</li>
+                        <li>Where did you find potential intervention points?</li>
+                        <li>What emotion came up most strongly?</li>
+                        <li>What do you want to remember from today?</li>
+                    </ul>
+                </div>
+
+                <div class="info-box">
+                    <h4>Taking It Forward</h4>
+                    <ul>
+                        <li><strong>Practice:</strong> Try doing a mini chain analysis when you notice urges arising</li>
+                        <li><strong>Catch It Early:</strong> The earlier in the chain you intervene, the easier it is</li>
+                        <li><strong>Keep Learning:</strong> Each chain teaches you more about your patterns</li>
+                        <li><strong>Be Patient:</strong> This is a skill that deepens with practice</li>
+                    </ul>
+                </div>
+
+                <div class="expandable" onclick="toggleExpand(this)">
+                    <div class="expandable-header">
+                        <span>Common Challenges & How to Meet Them</span>
+                        <span class="expandable-icon">▼</span>
+                    </div>
+                    <div class="expandable-content">
+                        <p><strong>"I can't remember all the details"</strong><br>
+                        That's normal. Use your best guess. The practice of trying to remember is itself valuable.</p>
+                        
+                        <p style="margin-top: 1rem;"><strong>"This feels like blame"</strong><br>
+                        Notice if you're judging yourself and bring in self-compassion. The behavior made sense given 
+                        your state and what you knew in that moment.</p>
+                        
+                        <p style="margin-top: 1rem;"><strong>"The chain is too long/complicated"</strong><br>
+                        Start with a simpler behavior to practice. You can also do "macro" chains that look at broader patterns.</p>
+                        
+                        <p style="margin-top: 1rem;"><strong>"I want to skip to solutions"</strong><br>
+                        That's natural—solutions feel better than analysis. But without understanding the full chain, 
+                        our solutions might miss the real intervention points.</p>
+                    </div>
+                </div>
+
+                <h3>Resources for Continued Practice</h3>
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>📱 Between Sessions</h4>
+                        <p>Consider keeping a simple chain log: note triggers, vulnerability factors, and one intervention 
+                        point you could try next time.</p>
+                    </div>
+
+                    <div class="component-card">
+                        <h4>📚 Recommended Reading</h4>
+                        <p>Linehan's DBT Skills Training Manual has comprehensive chain analysis worksheets and examples.</p>
+                    </div>
+
+                    <div class="component-card">
+                        <h4>🤝 Accountability</h4>
+                        <p>Consider sharing your prevention plan with someone supportive who can check in with you.</p>
+                    </div>
+
+                    <div class="component-card">
+                        <h4>💭 Reflection Practice</h4>
+                        <p>Before sleep, briefly review your day: were there any mini-chains worth noting?</p>
+                    </div>
+                </div>
+
+                <div class="meditation-box" style="margin-top: 2rem;">
+                    <h3 style="color: var(--deep-teal); margin-top: 0; text-align: center;">Closing</h3>
+                    <div class="quote">
+                        "The curious paradox is that when I accept myself just as I am, then I can change."
+                    </div>
+                    <div class="quote-author">— Carl Rogers</div>
+                    
+                    <p style="color: var(--slate); line-height: 1.7; text-align: center; margin-top: 1.5rem;">
+                        Thank you for your courage in examining your patterns today.<br>
+                        Every moment of awareness is a seed of transformation.<br>
+                        Be gentle with yourself as you practice.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Page Navigation
+        function showPage(pageIndex) {
+            const pages = document.querySelectorAll('.page');
+            const pills = document.querySelectorAll('.nav-pill');
+            
+            pages.forEach((page, index) => {
+                page.classList.toggle('active', index === pageIndex);
+            });
+            
+            pills.forEach((pill, index) => {
+                pill.classList.toggle('active', index === pageIndex);
+            });
+
+            // Scroll to top smoothly
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Breathing Exercise
+        let breathingActive = false;
+
+        function startBreathing() {
+            const circle = document.getElementById('breathingCircle');
+            const instruction = document.getElementById('breathingInstruction');
+            
+            if (!breathingActive) {
+                breathingActive = true;
+                circle.classList.add('breathing');
+                circle.textContent = 'Breathing...';
+                instruction.textContent = 'Breathe in (4 counts) ... hold (2) ... breathe out (6 counts)';
+                
+                // Stop after 5 cycles (40 seconds)
+                setTimeout(() => {
+                    stopBreathing();
+                }, 40000);
+            } else {
+                stopBreathing();
+            }
+        }
+
+        function stopBreathing() {
+            const circle = document.getElementById('breathingCircle');
+            const instruction = document.getElementById('breathingInstruction');
+            
+            breathingActive = false;
+            circle.classList.remove('breathing');
+            circle.textContent = 'Click to Begin';
+            instruction.textContent = 'Follow the circle: Breathe in as it grows, breathe out as it shrinks';
+        }
+
+        // Component Card Interaction
+        function expandComponent(card) {
+            card.style.transform = 'scale(1.05)';
+            setTimeout(() => {
+                card.style.transform = '';
+            }, 300);
+        }
+
+        // Expandable Sections
+        function toggleExpand(element) {
+            element.classList.toggle('expanded');
+        }
+
+        // Chain Analysis Generator
+        function generateChainAnalysis() {
+            const problemBehavior = document.getElementById('problemBehavior').value;
+            const vulnerability = document.getElementById('vulnerability').value;
+            const promptingEvent = document.getElementById('promptingEvent').value;
+            const chainLinks = document.getElementById('chainLinks').value;
+            const consequences = document.getElementById('consequences').value;
+            const solutions = document.getElementById('solutions').value;
+            const prevention = document.getElementById('prevention').value;
+
+            if (!problemBehavior || !vulnerability || !promptingEvent) {
+                alert('Please fill in at least the first three sections (Problem Behavior, Vulnerability Factors, and Prompting Event) to generate your analysis.');
+                return;
+            }
+
+            const resultDiv = document.getElementById('chainResult');
+            resultDiv.innerHTML = `
+                <h3 style="color: var(--deep-teal); margin-bottom: 1.5rem; text-align: center;">
+                    Your Chain Analysis
+                </h3>
+                
+                <div class="result-section">
+                    <h4>🎯 Problem Behavior</h4>
+                    <p>${problemBehavior}</p>
+                </div>
+
+                <div class="result-section">
+                    <h4>⚠️ Vulnerability Factors</h4>
+                    <p>${vulnerability}</p>
+                </div>
+
+                <div class="result-section">
+                    <h4>⚡ Prompting Event</h4>
+                    <p>${promptingEvent}</p>
+                </div>
+
+                ${chainLinks ? `
+                <div class="result-section">
+                    <h4>🔗 The Chain</h4>
+                    <p style="white-space: pre-wrap;">${chainLinks}</p>
+                </div>
+                ` : ''}
+
+                ${consequences ? `
+                <div class="result-section">
+                    <h4>📊 Consequences</h4>
+                    <p style="white-space: pre-wrap;">${consequences}</p>
+                </div>
+                ` : ''}
+
+                ${solutions ? `
+                <div class="result-section">
+                    <h4>💡 Solutions & Skills</h4>
+                    <p style="white-space: pre-wrap;">${solutions}</p>
+                </div>
+                ` : ''}
+
+                ${prevention ? `
+                <div class="result-section">
+                    <h4>🛡️ Prevention Plan</h4>
+                    <p style="white-space: pre-wrap;">${prevention}</p>
+                </div>
+                ` : ''}
+
+                <div style="margin-top: 2rem; padding: 1.5rem; background: linear-gradient(135deg, rgba(135, 168, 120, 0.1) 0%, rgba(147, 197, 253, 0.1) 100%); border-radius: 12px;">
+                    <p style="color: var(--deep-teal); font-weight: 600; margin-bottom: 0.5rem;">✨ Reflection Invitation</p>
+                    <p style="color: var(--slate); line-height: 1.6;">
+                        Take a moment to notice: What do you feel as you see your chain laid out? 
+                        Where do you feel compassion for yourself? Where do you notice hope for change? 
+                        Consider saving this chain analysis to review before similar situations arise.
+                    </p>
+                </div>
+            `;
+
+            resultDiv.classList.add('show');
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function clearChain() {
+            if (confirm('This will clear all your entries. Are you sure?')) {
+                document.querySelectorAll('#page2 textarea').forEach(textarea => {
+                    textarea.value = '';
+                });
+                document.getElementById('chainResult').classList.remove('show');
+            }
+        }
+
+        // Add subtle animation on load
+        window.addEventListener('load', () => {
+            document.querySelectorAll('.component-card').forEach((card, index) => {
+                card.style.animation = `fadeIn 0.6s ease ${index * 0.1}s both`;
+            });
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                const activeIndex = Array.from(document.querySelectorAll('.nav-pill'))
+                    .findIndex(pill => pill.classList.contains('active'));
+                if (activeIndex < 3) showPage(activeIndex + 1);
+            } else if (e.key === 'ArrowLeft') {
+                const activeIndex = Array.from(document.querySelectorAll('.nav-pill'))
+                    .findIndex(pill => pill.classList.contains('active'));
+                if (activeIndex > 0) showPage(activeIndex - 1);
+            }
+        });
+    </script>
+</body>
+</html>
